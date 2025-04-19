@@ -15,10 +15,11 @@ interface Movie {
 interface MovieListProps {
   title: string;
   movies: Movie[];
+  hideSeeAll?: boolean;
 }
 const { width, height } = Dimensions.get("window");
 const MovieList = (movieList: MovieListProps) => {
-  const { title, movies } = movieList;
+  const { title, movies, hideSeeAll } = movieList;
 const {push }= useRouter();
   return (
     <View style={{ marginBottom: 28 }}>
@@ -39,11 +40,11 @@ const {push }= useRouter();
         >
           {title}
         </Text>
-        <TouchableOpacity>
+        {!hideSeeAll && <TouchableOpacity>
           <Text style={[{ color: "white", fontSize: 16 }, styles.text]}>
             See All
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity>}
       </View>
       <ScrollView
         horizontal

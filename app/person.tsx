@@ -7,20 +7,24 @@ import { ArrowSmallLeftIcon, HeartIcon } from "react-native-heroicons/outline";
 import { useRouter } from "expo-router";
 import MovieList from "@/components/MovieList";
 import Loading from "@/components/Loading";
+import { image185, image342 } from "./api/moviedb";
+import { usePersonCredits, usePersonDetails } from "./hooks";
+import { useRoute } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
 
 export default function PersonScreen() {
+  const {params: item}= useRoute();
   const { back } = useRouter();
   const [isFavorite, setIsFavorite] = useState(false);
-  const [loading, setLoading] = useState(false);
   const toggleFavorite = (value: boolean) => {
     setIsFavorite(value);
   };
+  const { data: details, isLoading: loadingDetails } = usePersonDetails(item?.id);
+  const { data: credits, isLoading: loadingCredits } = usePersonCredits(item?.id);
 
   return (
     <>
-      {/* Top Buttons Floating */}
       <SafeAreaView
         style={{
           position: "absolute",
@@ -62,7 +66,7 @@ export default function PersonScreen() {
         </TouchableOpacity>
       </SafeAreaView>
 
-     {loading ? <Loading/>:  <ScrollView
+     {loadingDetails ? <Loading/>:  <ScrollView
         style={{ flex: 1, backgroundColor: "#222222" , }}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
@@ -95,7 +99,7 @@ export default function PersonScreen() {
               }}
             >
               <Image
-                source={require("../assets/images/download.jpg")}
+                source={{uri: details?.profile_path ? image342(details?.profile_path) : "https://via.placeholder.com/500"}}
                 resizeMode="cover"
                 style={{ width: "100%", height: "100%" }}
               />
@@ -112,10 +116,10 @@ export default function PersonScreen() {
                 fontSize: 20,
               }}
             >
-              Tom Holland
+              {details?.name}
             </Text>
             <Text style={{ color: "gray", textAlign: "center", fontSize: 13 }}>
-              United Kingdom, London
+             {details?.place_of_birth}
             </Text>
           </View>
 
@@ -140,7 +144,9 @@ export default function PersonScreen() {
               }}
             >
               <Text style={{ color: "white", fontWeight: "500" }}>Gender</Text>
-              <Text style={{ color: "lightgray", fontSize: 12 }}>Male</Text>
+              <Text style={{ color: "lightgray", fontSize: 12 }}>
+                {details?.gender==1 ? 'Female': "Male"}
+                </Text>
             </View>
             <View
               style={{
@@ -166,7 +172,7 @@ export default function PersonScreen() {
                   fontSize: 12,
                 }}
               >
-                13-4-2002
+                {details.birthday}
               </Text>
             </View>
             <View
@@ -180,7 +186,7 @@ export default function PersonScreen() {
               <Text style={{ color: "white", fontWeight: "500" }}>
                 Known for
               </Text>
-              <Text style={{ color: "lightgray", fontSize: 12 }}>Acting</Text>
+              <Text style={{ color: "lightgray", fontSize: 12 }}>{details.known_for_department}</Text>
             </View>
             <View
               style={{
@@ -191,7 +197,7 @@ export default function PersonScreen() {
               <Text style={{ color: "white", fontWeight: "500" }}>
                 Popularity
               </Text>
-              <Text style={{ color: "lightgray", fontSize: 12 }}>69.2</Text>
+              <Text style={{ color: "lightgray", fontSize: 12 }}>{details.popularity?.toFixed(2) + ' %'}</Text>
             </View>
           </View>
 
@@ -200,28 +206,17 @@ export default function PersonScreen() {
               Biography
             </Text>
             <Text style={{ color: "#686868", fontSize: 14 }}>
-              Lorem ipsum dolor sit amet consectetur, adipisicing elit Lorem
-              ipsum dolor sit amet, consectetur adipisicing elit. Blanditiis
-              repellendus atque nam sequi officia, sit similique id ipsam
-              tempore nemo eos facere consequuntur velit qui beatae molestiae
-              commodi quo aperiam. Lorem ipsum dolor sit amet consectetur
-              adipisicing elit. Dignissimos, nisi! Laborum vel consectetur
-              error, nam similique quam corporis quos debitis repellendus
-              reiciendis consequatur a voluptates eum, recusandae amet id
-              cupiditate? lorem
+             {details.biography}
             </Text>
           </View>
+         
+           {credits?.cast?.length > 0 && (
           <MovieList
-            title="Popular Movies"
-            movies={[
-              { id: 1, title: "Movie 1" },
-              { id: 2, title: "Movie 2" },
-              { id: 3, title: "Movie 3" },
-              { id: 4, title: "Movie 4" },
-              { id: 5, title: "Movie 5" },
-            ]}
+          title="Popular Movies"
+          movies={credits.cast}
             hideSeeAll={true}
           />
+        )}
         </View>
       </ScrollView>}
     </>

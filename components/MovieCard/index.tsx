@@ -6,6 +6,7 @@ import {
 } from "react-native";
 import React from "react";
 import { useNavigation, useRouter } from "expo-router";
+import { image500 } from "@/app/api/moviedb";
 
 interface MovieCardProps {
   item: any;
@@ -17,15 +18,16 @@ export const options = {
 
 const MovieCard = ({ item }: MovieCardProps) => {
   const {push} = useRouter()
+  
   const navigation= useNavigation()
   const handlePress = () => {
     push({pathname: "/movie", params: item})
   };
   return (
-    <TouchableWithoutFeedback>
+    <TouchableWithoutFeedback onPress={handlePress}>
       <View style={styles.card}>
         <Image
-          source={require("../../assets/images/Screenshot 2025-04-14 172034.png")}
+          source={{uri: item.poster_path ? image500(item.poster_path) : "https://via.placeholder.com/500"}}
           style={styles.poster}
           resizeMode="cover"
         />

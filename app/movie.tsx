@@ -11,27 +11,14 @@ import { LinearGradient } from "expo-linear-gradient";
 import Cast from "@/components/Cast";
 import MovieList from "@/components/MovieList";
 import Loading from "@/components/Loading";
+import { image500 } from "./api/moviedb";
+import { useMovieDetails, useMovieCredits, useSimilarMovies } from "./hooks";
 var { width, height } = Dimensions.get("window");
 // const ios = Platform.OS === "ios";
 const MovieScreen = () => {
   const { params: item } = useRoute();
   const { back } = useRouter();
   const [isFavorite, setIsFavorite] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  // const [cast, setCast]= useState()
-  const [similarMovies, setSimilarMovies] = useState([
-    { id: 1, title: "Movie 1" },
-    { id: 2, title: "Movie 2" },
-    { id: 3, title: "Movie 3" },
-    { id: 4, title: "Movie 4" },
-    { id: 5, title: "Movie 5" },
-    { id: 6, title: "Movie 6" },
-    { id: 7, title: "Movie 7" },
-    { id: 8, title: "Movie 8" },
-    { id: 9, title: "Movie 9" },
-    { id: 10, title: "Movie 10" },
-  ]);
 
   const toggleFavorite = (value: boolean) => {
     setIsFavorite(value);
@@ -41,6 +28,16 @@ const MovieScreen = () => {
     { id: 2, name: "Actor 2", role: "Role 2" },
     { id: 3, name: "Actor 3", role: "Role 3" },
   ];
+  const { data: details, isLoading: loadingDetails } = useMovieDetails(
+    item?.id
+  );
+  const { data: credits, isLoading: loadingCredits } = useMovieCredits(
+    item?.id
+  );
+  const { data: similar, isLoading: loadingSimilar } = useSimilarMovies(
+    item?.id
+  );
+
 
   return (
     <>
@@ -54,7 +51,11 @@ const MovieScreen = () => {
         <View>
           <Image
             resizeMode="cover"
-            source={require("../assets/images/Screenshot 2025-04-14 172034.png")}
+            source={{
+              uri: item?.poster_path
+                ? image500(item?.poster_path)
+                : "https://via.placeholder.com/500",
+            }}
             style={{ width: width, height: height * 0.55 }}
           />
           <LinearGradient
@@ -118,9 +119,9 @@ const MovieScreen = () => {
           </TouchableOpacity>
         </SafeAreaView>
 
-        {loading ? (
+        {loadingDetails ? (
           <Loading />
-        ) : ( 
+        ) : (
           <View style={{ paddingHorizontal: 20, marginTop: -150 }}>
             <Text
               style={{
@@ -130,7 +131,7 @@ const MovieScreen = () => {
                 fontWeight: "500",
               }}
             >
-              Ant Man and the Wasp: Quantumania
+              {details?.title}
             </Text>
             <Text
               style={{
@@ -141,40 +142,60 @@ const MovieScreen = () => {
                 fontWeight: "500",
               }}
             >
-              Released • 2020 • 170 min
+              {details?.status} • {item.release_date.split("-")[0]} •{" "}
+              {details?.runtime} min
             </Text>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: 10,
+                marginHorizontal: 10,
+              }}
+            >
+              {details?.genres?.map((genre: any, index: any) => {
+                let showDot = index + 1 != details.genres.length;
+                return (
+                  <Text
+                    key={index}
+                    style={{
+                      color: "gray",
+                      paddingTop: 10,
+                      textAlign: "center",
+                      fontSize: 14,
+                      fontWeight: "500",
+                    }}
+                  >
+                    {} {genre?.name} {showDot ? "•" : ""}
+                  </Text>
+                );
+              })}
+            </View>
+
             <Text
               style={{
                 color: "gray",
                 paddingTop: 10,
-                textAlign: "center",
                 fontSize: 14,
                 fontWeight: "500",
+                lineHeight: 22,
               }}
             >
-              Action • Thriller • Comedy
-            </Text>
-            <Text
-              style={{
-                color: "gray",
-                paddingTop: 10,
-                fontSize: 14,
-                fontWeight: "500",
-              }}
-            >
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec
-              efficitur, nisl eget consectetur sagittis, nisl nunc egestas nisi,
-              vitae aliquam nunc nisl eget nunc.
+              {details?.overview}
             </Text>
           </View>
         )}
         {/* Cast & Similar Movies */}
-        <Cast cast={cast} />
-        <MovieList
-          title="Similar Movies"
-          movies={similarMovies}
-          hideSeeAll={true}
-        />
+        <Cast cast={credits?.cast} />
+
+        {similar?.results?.length > 0 && (
+          <MovieList
+            title="Similar Movies"
+            movies={similar.results}
+            hideSeeAll={true}
+          />
+        )}
       </ScrollView>
     </>
   );

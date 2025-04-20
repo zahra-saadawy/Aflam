@@ -3,10 +3,9 @@ import React from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import { useRoute } from "@react-navigation/native";
 import { useRouter } from "expo-router";
+import { image185 } from "@/app/api/moviedb";
 
 const Cast = ({ cast }: any) => {
-  let characterName = "John Wick";
-  let personName = "Tom Holland";
   const {push} = useRouter()
   return (
     <View>
@@ -44,21 +43,21 @@ const Cast = ({ cast }: any) => {
                   }}
                 >
                   <Image
-                    source={require("../../assets/images/download.jpg")}
+                    source={{uri: person.profile_path ? image185(person.profile_path) : "https://via.placeholder.com/500"}}
                     style={{ width: "100%", height: "100%" }}
                     resizeMode="cover"
                   />
                 </View>
 
                 <Text style={{ color: "white", fontSize: 14, marginTop: 2 }}>
-                  {characterName.length > 10
-                    ? characterName.slice(0, 10) + "..."
-                    : characterName}
+                  {person?.character.length > 10
+                    ? person?.character.slice(0, 10) + "..."
+                    : person?.character}
                 </Text>
                 <Text style={{ color: "gray", fontSize: 14, marginTop: 2 }}>
-                  {personName.length > 10
-                    ? personName.slice(0, 10) + "..."
-                    : personName}
+                  {person?.original_name.length > 10
+                    ? person?.original_name.slice(0, 10) + "..."
+                    : person?.original_name}
                 </Text>
               </TouchableOpacity>
             );

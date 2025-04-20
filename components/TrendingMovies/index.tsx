@@ -11,12 +11,7 @@ interface TrendingMoviesProps {
 
 const TrendingMovies = ({ data }: TrendingMoviesProps) => {
   const CARD_HEIGHT = 390;
-  data = [
-    { id: 1, title: "Movie 1" },
-    { id: 2, title: "Movie 2" },
-    { id: 3, title: "Movie 3" },
-  ];
-
+ 
   return (
     <View >
       <Text
